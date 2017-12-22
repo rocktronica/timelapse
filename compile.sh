@@ -4,7 +4,7 @@ dir=$(dirname $0)
 
 framerate=10
 
-last_timestamp=$(ls capture | tail -n1 | grep -oE '\d+')
+last_timestamp=$(ls capture | grep .jpg | tail -n1 | grep -oE '\d+')
 
 function gif() {
     ffmpeg \
