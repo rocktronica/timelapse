@@ -1,10 +1,10 @@
 #!/bin/bash
 
-dir=$(dirname $0)
+dir=$(dirname "$0")
 
 framerate=10
 
-last_timestamp=$(ls capture | grep .jpg | tail -n1 | grep -oE '\d+')
+last_timestamp=$(find capture/*.jpg | tail -n1 | grep -oE '\d+')
 
 function gif() {
     ffmpeg \
