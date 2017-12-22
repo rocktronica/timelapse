@@ -1,7 +1,7 @@
 #!/bin/bash
 
 delay=1
-url='http://192.168.42.68/photo'
+url='http://192.168.42.64/photo'
 
 dir=$(dirname $0)
 
