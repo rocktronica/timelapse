@@ -28,13 +28,23 @@ while getopts "h?s:r:w:" opt; do
 done
 
 dir=$(dirname "$0")
+filename="$dir/output/$slug-$framerate"
 
 function gif() {
     ffmpeg \
         -r "$framerate" \
         -pattern_type glob -i "$dir/capture/*.jpg" \
         -vf scale="$gif_width:-1" \
-        "$dir/output/$slug-$framerate.gif"
+        "$filename.gif"
+
+    if hash gifsicle 2>/dev/null; then
+        gifsicle -O3 --colors 256 < "$filename.gif" > "$filename-256.gif"
+        gifsicle -O3 --colors 128 < "$filename.gif" > "$filename-128.gif"
+        gifsicle -O3 --colors 64 < "$filename.gif" > "$filename-064.gif"
+        gifsicle -O3 --colors 32 < "$filename.gif" > "$filename-032.gif"
+    else
+        echo "gifsicle not found. Not running extra compression."
+    fi
 }
 
 function video() {
@@ -44,7 +54,7 @@ function video() {
         -movflags faststart \
         -pix_fmt yuv420p \
         -vb 10000k \
-        "$dir/output/$slug-$framerate.mp4"
+        "$filename.mp4"
 }
 
 function cleanup() {
