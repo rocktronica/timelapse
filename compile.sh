@@ -1,17 +1,40 @@
 #!/bin/bash
 
+function help() {
+    echo "Assemble captured photos into timelapse"
+    echo
+    echo "Options:"
+    echo "-h    Show this help info and quit"
+    echo "-s    Filename slug (default: last photo)"
+    echo "-r    Frame rate (default: 12)"
+    echo "-w    Gif width (default: 320)"
+    echo
+    echo "Usage:"
+    echo "$0 -h"
+    echo "$0 -s FILENAME_SLUG -r 30 -w 600"
+}
+
+slug=$(find capture/*.jpg | tail -n1 | grep -oE '\d+')
+framerate=12
+gif_width=320
+
+while getopts "h?s:r:w:" opt; do
+    case "$opt" in
+        h) help; exit ;;
+        s) slug="$OPTARG" ;;
+        r) framerate="$OPTARG" ;;
+        w) gif_width="$OPTARG" ;;
+    esac
+done
+
 dir=$(dirname "$0")
-
-framerate=10
-
-last_timestamp=$(find capture/*.jpg | tail -n1 | grep -oE '\d+')
 
 function gif() {
     ffmpeg \
         -r "$framerate" \
         -pattern_type glob -i "$dir/capture/*.jpg" \
-        -vf scale=320:-1 \
-        "$dir/output/$last_timestamp-$framerate.gif"
+        -vf scale="$gif_width:-1" \
+        "$dir/output/$slug-$framerate.gif"
 }
 
 function twitter() {
@@ -20,7 +43,7 @@ function twitter() {
         -pattern_type glob -i "$dir/capture/*.jpg" \
         -movflags faststart \
         -pix_fmt yuv420p \
-        "$dir/output/$last_timestamp-$framerate-twitter.mp4"
+        "$dir/output/$slug-$framerate-twitter.mp4"
 }
 
 function instagram() {
@@ -28,7 +51,7 @@ function instagram() {
         -r "$framerate" \
         -pattern_type glob -i "$dir/capture/*.jpg" \
         -vcodec mpeg4 -vb 10000k \
-        "$dir/output/$last_timestamp-$framerate-instagram.mp4"
+        "$dir/output/$slug-$framerate-instagram.mp4"
 }
 
 function cleanup() {
