@@ -31,8 +31,20 @@ function instagram() {
         "$dir/output/$last_timestamp-$framerate-instagram.mp4"
 }
 
-# rm capture/*
+function cleanup() {
+    count=$(find capture/*.jpg | wc -l | xargs)
+
+    echo
+    echo "All done! Delete $count captured photos? [y/N] "
+
+    read -r
+    if [[ "$REPLY" =~ ^(yes|y|Y)$ ]]; then
+        rm capture/*
+    fi
+}
 
 gif
 twitter
 instagram
+
+cleanup
