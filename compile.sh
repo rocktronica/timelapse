@@ -37,21 +37,14 @@ function gif() {
         "$dir/output/$slug-$framerate.gif"
 }
 
-function twitter() {
+function video() {
     ffmpeg \
         -r "$framerate" \
         -pattern_type glob -i "$dir/capture/*.jpg" \
         -movflags faststart \
         -pix_fmt yuv420p \
-        "$dir/output/$slug-$framerate-twitter.mp4"
-}
-
-function instagram() {
-    ffmpeg \
-        -r "$framerate" \
-        -pattern_type glob -i "$dir/capture/*.jpg" \
-        -vcodec mpeg4 -vb 10000k \
-        "$dir/output/$slug-$framerate-instagram.mp4"
+        -vb 10000k \
+        "$dir/output/$slug-$framerate.mp4"
 }
 
 function cleanup() {
@@ -67,7 +60,6 @@ function cleanup() {
 }
 
 gif
-twitter
-instagram
+video
 
 cleanup
