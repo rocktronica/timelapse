@@ -21,6 +21,7 @@ For Mac with [Homebrew](https://brew.sh/):
 
     brew install ffmpeg
     brew install gifsicle
+    brew install imagemagick
 
 ## Usage
 

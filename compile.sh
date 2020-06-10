@@ -8,6 +8,7 @@ function help() {
     echo "-s    Filename slug (default: last photo)"
     echo "-r    Frame rate (default: 12)"
     echo "-w    Gif width (default: 320)"
+    echo "-b    Boomerang loop GIF (default: false)"
     echo
     echo "Usage:"
     echo "$0 -h"
@@ -17,13 +18,15 @@ function help() {
 slug=$(find capture/*.jpg | tail -n1 | grep -oE '\d+')
 framerate=12
 gif_width=320
+boomerang=false
 
-while getopts "h?s:r:w:" opt; do
+while getopts "h?s:r:w:b" opt; do
     case "$opt" in
         h) help; exit ;;
         s) slug="$OPTARG" ;;
         r) framerate="$OPTARG" ;;
         w) gif_width="$OPTARG" ;;
+        b) boomerang=true ;;
         *) help; exit ;;
     esac
 done
@@ -31,18 +34,31 @@ done
 dir=$(dirname "$0")
 filename="$dir/output/$slug-$framerate"
 
+mkdir -p output
+
 function gif() {
+    if $boomerang; then
+        _filename="$filename-boomerang"
+    else
+        _filename="$filename"
+    fi
+
     ffmpeg \
         -r "$framerate" \
         -pattern_type glob -i "$dir/capture/*.jpg" \
         -vf scale="$gif_width:-1" \
-        "$filename.gif"
+        "$_filename.gif"
+
+    if $boomerang; then
+        convert "$_filename.gif" -coalesce -duplicate 1,-2-1 \
+            -quiet -layers OptimizePlus -loop 0 "$_filename.gif"
+    fi
 
     if hash gifsicle 2>/dev/null; then
-        gifsicle -O3 --colors 256 < "$filename.gif" > "$filename-256.gif"
-        gifsicle -O3 --colors 128 < "$filename.gif" > "$filename-128.gif"
-        gifsicle -O3 --colors 64 < "$filename.gif" > "$filename-064.gif"
-        gifsicle -O3 --colors 32 < "$filename.gif" > "$filename-032.gif"
+        gifsicle -O3 --colors 256 < "$_filename.gif" > "$_filename-256.gif"
+        gifsicle -O3 --colors 128 < "$_filename.gif" > "$_filename-128.gif"
+        gifsicle -O3 --colors 64 < "$_filename.gif" > "$_filename-064.gif"
+        gifsicle -O3 --colors 32 < "$_filename.gif" > "$_filename-032.gif"
     else
         echo "gifsicle not found. Not running extra compression."
     fi
