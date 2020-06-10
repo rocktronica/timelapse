@@ -24,6 +24,7 @@ while getopts "h?s:r:w:" opt; do
         s) slug="$OPTARG" ;;
         r) framerate="$OPTARG" ;;
         w) gif_width="$OPTARG" ;;
+        *) help; exit ;;
     esac
 done
 

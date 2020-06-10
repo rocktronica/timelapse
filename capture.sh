@@ -23,6 +23,7 @@ while getopts "h?u:d:" opt; do
         h) help; exit ;;
         u) url="$OPTARG" ;;
         d) delay="$OPTARG" ;;
+        *) help; exit ;;
     esac
 done
 
