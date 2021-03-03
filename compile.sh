@@ -8,6 +8,7 @@ function help() {
     echo "-s    Filename slug (default: last photo)"
     echo "-r    Frame rate (default: 12)"
     echo "-w    Gif width (default: 320)"
+    echo "-d    Prompt to delete capture files when done (default: false)"
     echo "-b    Boomerang loop GIF (default: false)"
     echo
     echo "Usage:"
@@ -18,14 +19,16 @@ function help() {
 slug=$(find capture/*.jpg | tail -n1 | grep -oE '\d+')
 framerate=12
 gif_width=320
+delete=false
 boomerang=false
 
-while getopts "h?s:r:w:b" opt; do
+while getopts "h?s:r:w:db" opt; do
     case "$opt" in
         h) help; exit ;;
         s) slug="$OPTARG" ;;
         r) framerate="$OPTARG" ;;
         w) gif_width="$OPTARG" ;;
+        d) delete=true ;;
         b) boomerang=true ;;
         *) help; exit ;;
     esac
@@ -78,15 +81,19 @@ function cleanup() {
     count=$(find capture/*.jpg | wc -l | xargs)
 
     echo
-    echo "All done! Delete $count captured photos? [y/N] "
+    read -p "All done! Delete $count captured photos? [Y/n] " -n 1 -r
+    echo
 
-    read -r
-    if [[ "$REPLY" =~ ^(yes|y|Y)$ ]]; then
-        rm capture/*
+    if [[ $REPLY =~ ^[Y]$ ]]; then
+        echo "rm capture/*"
+    else
+        exit
     fi
 }
 
 gif
 video
 
-cleanup
+if $delete; then
+    cleanup
+fi
